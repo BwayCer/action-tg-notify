@@ -1,0 +1,32 @@
+name: Telegram Notify
+description: Send message to Telegram
+inputs:
+  botToken:
+    description: Telegram bot Token
+    required: true
+  chatId:
+    description: Telegram chat ID
+    required: true
+  text:
+    description: A message
+    required: false
+    default: ''
+outputs:
+  result:
+    description: Return result
+    value: ${{ steps.sendMsg.outputs.tgResult }}
+runs:
+  using: composite
+  steps:
+    - name: Send message
+      id: sendMsg
+      shell: bash
+      run: |
+        tgResult=$(
+          curl 'https://api.telegram.org/bot${{ inputs.botToken }}/sendMessage' \
+            -H 'Content-Type: application/json' \
+            --data-raw '{"chat_id":"${{ inputs.chatId }}","parse_mode":"Markdown","text":"Sx: ${{ inputs.text }}","disable_web_page_preview":true}'
+        )
+        echo "::set-output name=tgResult::$tgResult"
+
+
